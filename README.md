@@ -207,7 +207,9 @@ Deploy Evolution API with optimized infrastructure through our HostGator partner
 
 ## Telemetry
 
-Evolution API collects anonymous telemetry data (routes used, most accessed routes, API version) to help improve the service. **No sensitive or personal data is collected.** This information helps us identify improvements and provide a better experience for users.
+Evolution API sends usage telemetry to `https://log.evolution-api.com/telemetry` by default. Each event contains the requested route, the API version, and a timestamp. For instance-scoped endpoints, the route can include the configured instance name, so avoid using personal or sensitive information in instance names while telemetry is enabled.
+
+Telemetry is enabled by default. Set `TELEMETRY_ENABLED=false` to opt out, or set `TELEMETRY_URL` to send events to an endpoint you control. This information helps us identify improvements and provide a better experience for users.
 
 ---
 
