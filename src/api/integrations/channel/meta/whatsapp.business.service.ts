@@ -1158,6 +1158,7 @@ export class BusinessStartupService extends ChannelStartupService {
           return await this.post(content, 'messages');
         }
         if (message['buttons']) {
+          const buttonBody = message['text'] || message['buttonHeader'] || 'Select';
           content = {
             messaging_product: 'whatsapp',
             recipient_type: 'individual',
@@ -1165,9 +1166,20 @@ export class BusinessStartupService extends ChannelStartupService {
             type: 'interactive',
             interactive: {
               type: 'button',
+              header: message['buttonHeader']
+                ? {
+                    type: 'text',
+                    text: message['buttonHeader'],
+                  }
+                : undefined,
               body: {
-                text: message['text'] || 'Select',
+                text: buttonBody,
               },
+              footer: message['buttonFooter']
+                ? {
+                    text: message['buttonFooter'],
+                  }
+                : undefined,
               action: {
                 buttons: message['buttons'],
               },
@@ -1178,7 +1190,10 @@ export class BusinessStartupService extends ChannelStartupService {
           for (const item of message['buttons']) {
             formattedText += `▶️ ${item.reply?.title}\n`;
           }
-          message = { conversation: `${message['text'] || 'Select'}\n` + formattedText };
+          const messageSummary = [message['buttonHeader'], buttonBody, message['buttonFooter']]
+            .filter(Boolean)
+            .join('\n');
+          message = { conversation: `${messageSummary}\n${formattedText}` };
           return await this.post(content, 'messages');
         }
         if (message['listMessage']) {
@@ -1534,7 +1549,9 @@ export class BusinessStartupService extends ChannelStartupService {
     return await this.sendMessageWithTyping(
       data.number,
       {
-        text: !embeddedMedia?.mediaKey ? data.title : undefined,
+        text: !embeddedMedia?.mediaKey ? data.description || data.title : undefined,
+        buttonHeader: data.description ? data.title : undefined,
+        buttonFooter: data.footer,
         buttons: data.buttons.map((button) => {
           return {
             type: 'reply',
